@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.example.Database;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -86,7 +86,7 @@ public class Response {
                     JSONArray usersArray = new JSONArray();
                     while (resultSet.next()) {
                         JSONObject userObject = new JSONObject();
-                        userObject.put("user_id", resultSet.getInt("users_id"));
+                        userObject.put("users_id", resultSet.getInt("users_id"));
                         userObject.put("first_name", resultSet.getString("first_name"));
                         userObject.put("last_name", resultSet.getString("last_name"));
                         userObject.put("email", resultSet.getString("email"));
@@ -108,12 +108,12 @@ public class Response {
                 try (Connection connection = Database.connect();
                      Statement statement = connection.createStatement()) {
 
-                    ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
+                    ResultSet resultSet = statement.executeQuery("SELECT * FROM tb_users");
 
                     JSONArray usersArray = new JSONArray();
                     while (resultSet.next()) {
                         JSONObject userObject = new JSONObject();
-                        userObject.put("users_id", resultSet.getInt("id_user"));
+                        userObject.put("id_user", resultSet.getInt("id_user"));
                         userObject.put("first_name", resultSet.getString("first_name"));
                         userObject.put("last_name", resultSet.getString("last_name"));
                         userObject.put("email", resultSet.getString("email"));
@@ -1092,8 +1092,8 @@ public class Response {
             }
 
             sendErrorResponse(exchange, 404, "Address not found");
-  }
-}
+        }
+    }
 
 
 }

@@ -1,6 +1,7 @@
-package org.example;
 import java.io.IOException;
+
 import java.io.OutputStream;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -8,7 +9,7 @@ public class Server {
     private static final String API_KEY_ENV_VARIABLE = "API_KEY";
     //    private static final String DATABASE_URL = "jdbc:sqlite:path-to-your-sqlite-database";
 
-    public static class DataHandler implements HttpHandler {
+    static class DataHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             String requestMethod = exchange.getRequestMethod();
@@ -20,6 +21,14 @@ public class Server {
                     sendResponse(exchange, 401, "Unauthorized");
                     return;
                 }
+
+                // Proses permintaan dan manipulasi database
+                // ...
+                // Contoh: Menambahkan data ke database
+                // String jsonData = requestBodyToString(exchange);
+                // Data data = parseJsonData(jsonData);
+                // insertDataToDatabase(data);
+                // sendResponse(exchange, 200, "Data added to database.");
 
                 sendResponse(exchange, 200, "Request authorized. Data added to database.");
             } else {
