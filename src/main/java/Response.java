@@ -113,7 +113,7 @@ public class Response {
                     JSONArray usersArray = new JSONArray();
                     while (resultSet.next()) {
                         JSONObject userObject = new JSONObject();
-                        userObject.put("id_user", resultSet.getInt("id_user"));
+                        userObject.put("users_id", resultSet.getInt("users_id"));
                         userObject.put("first_name", resultSet.getString("first_name"));
                         userObject.put("last_name", resultSet.getString("last_name"));
                         userObject.put("email", resultSet.getString("email"));
@@ -123,7 +123,7 @@ public class Response {
                     }
 
                     JSONObject response = new JSONObject();
-                    response.put("tb_users", usersArray);
+                    response.put("users", usersArray);
 
                     sendResponse(exchange, 200, response.toString());
                 } catch (SQLException e) {
@@ -144,18 +144,18 @@ public class Response {
 
             try (Connection connection = Database.connect();
                  PreparedStatement statement = connection.prepareStatement(
-                         "SELECT tb_users.id_user, tb_users.first_name, tb_users.last_name, tb_users.email, " +
-                                 "tb_users.phone_number, tb_users.type, tb_address.type AS address_type, tb_address.line1, " +
-                                 "tb_address.line2, tb_address.city, tb_address.province, tb_address.postcode " +
-                                 "FROM tb_users LEFT JOIN tb_address ON tb_users.id_user = tb_address.id_user " +
-                                 "WHERE tb_users.id_user = ?")) {
+                         "SELECT users.users_id, users.first_name, users.last_name, users.email, " +
+                                 "users.phone_number, users.type, addresses.type AS addresses_type, addresses.line1, " +
+                                 "addresses.line2, addresses.city, addresses.province, addresses.postcode " +
+                                 "FROM users LEFT JOIN addresses ON users.users_id = addresses.users_id " +
+                                 "WHERE users.users_id = ?")) {
 
                 statement.setInt(1, userId);
 
                 ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     JSONObject userObject = new JSONObject();
-                    userObject.put("id_user", resultSet.getInt("id_user"));
+                    userObject.put("users_id", resultSet.getInt("users_id"));
                     userObject.put("first_name", resultSet.getString("first_name"));
                     userObject.put("last_name", resultSet.getString("last_name"));
                     userObject.put("email", resultSet.getString("email"));
@@ -165,7 +165,7 @@ public class Response {
                     JSONArray addressesArray = new JSONArray();
                     while (resultSet.getString("address_type") != null) {
                         JSONObject addressObject = new JSONObject();
-                        addressObject.put("type", resultSet.getString("address_type"));
+                        addressObject.put("type", resultSet.getString("addresses_type"));
                         addressObject.put("line1", resultSet.getString("line1"));
                         addressObject.put("line2", resultSet.getString("line2"));
                         addressObject.put("city", resultSet.getString("city"));
@@ -178,7 +178,7 @@ public class Response {
                     }
 
                     if (addressesArray.length() > 0) {
-                        userObject.put("tb_address", addressesArray);
+                        userObject.put("addresses", addressesArray);
                     }
 
                     sendResponse(exchange, 200, userObject.toString());
@@ -205,11 +205,11 @@ public class Response {
                 String email = userObject.getString("email");
                 String phoneNumber = userObject.getString("phone_number");
                 String type = userObject.getString("type");
-                int userId = userObject.getInt("id_user");
+                int userId = userObject.getInt("users_id");
 
                 try (Connection connection = Database.connect();
                      PreparedStatement statement = connection.prepareStatement(
-                             "INSERT INTO tb_users (first_name, last_name, email, phone_number, type, id_user) " +
+                             "INSERT INTO users (first_name, last_name, email, phone_number, type, users_id) " +
                                      "VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
 
                     statement.setString(1, firstName);
@@ -262,7 +262,7 @@ public class Response {
                 // Create the response object
                 JSONObject response = new JSONObject();
                 response.put("message", "User created successfully");
-                response.put("user_id", userId);
+                response.put("users_id", userId);
 
                 sendResponse(exchange, 201, response.toString());
             } catch (JSONException e) {
@@ -294,7 +294,7 @@ public class Response {
 
                 try (Connection connection = Database.connect();
                      PreparedStatement statement = connection.prepareStatement(
-                             "UPDATE tb_users SET first_name = ?, last_name = ?, email = ?, phone_number = ?, type = ? WHERE id_user = ?")) {
+                             "UPDATE users SET first_name = ?, last_name = ?, email = ?, phone_number = ?, type = ? WHERE users_id = ?")) {
 
                     statement.setString(1, firstName);
                     statement.setString(2, lastName);
@@ -341,7 +341,7 @@ public class Response {
 
                 try (Connection connection = Database.connect();
                      PreparedStatement statement = connection.prepareStatement(
-                             "UPDATE tb_address SET type = ?, line1 = ?, line2 = ?, city = ?, province = ?, postcode = ? WHERE id_user = ?")) {
+                             "UPDATE addresses SET type = ?, line1 = ?, line2 = ?, city = ?, province = ?, postcode = ? WHERE users_id = ?")) {
 
                     statement.setString(1, type);
                     statement.setString(2, line1);
@@ -380,7 +380,7 @@ public class Response {
 
             try (Connection connection = Database.connect()) {
                 try (PreparedStatement statement = connection.prepareStatement(
-                        "DELETE FROM tb_address WHERE id_user = ?")) {
+                        "DELETE FROM addresses WHERE users_id = ?")) {
                     statement.setInt(1, userId);
                     statement.executeUpdate();
 
@@ -408,12 +408,12 @@ public class Response {
 
             try (Connection connection = Database.connect()) {
                 try (PreparedStatement statement = connection.prepareStatement(
-                        "DELETE FROM tb_address WHERE id_user = ?")) {
+                        "DELETE FROM addresses WHERE users_id = ?")) {
                     statement.setInt(1, userId);
                     statement.executeUpdate();
                 }
                 try (PreparedStatement statement = connection.prepareStatement(
-                        "DELETE FROM tb_users WHERE id_user = ?")) {
+                        "DELETE FROM users WHERE users_id = ?")) {
                     statement.setInt(1, userId);
                     int affectedRows = statement.executeUpdate();
                     if (affectedRows > 0) {
@@ -504,18 +504,18 @@ public class Response {
         private void handleGetProducts(HttpExchange exchange) throws IOException {
             try (Connection connection = Database.connect();
                  Statement statement = connection.createStatement();
-                 ResultSet resultSet = statement.executeQuery("SELECT * FROM tb_products")) {
+                 ResultSet resultSet = statement.executeQuery("SELECT * FROM products")) {
 
                 JSONArray productsArray = new JSONArray();
 
                 while (resultSet.next()) {
                     JSONObject productObject = new JSONObject();
-                    productObject.put("id_product", resultSet.getInt("id_product"));
-                    productObject.put("id_user", resultSet.getInt("id_user"));
+                    productObject.put("products_id", resultSet.getInt("products_id"));
+                    productObject.put("users_id", resultSet.getInt("users_id"));
                     productObject.put("title", resultSet.getString("title"));
                     productObject.put("description", resultSet.getString("description"));
                     productObject.put("price", resultSet.getDouble("price"));
-                    productObject.put("stok", resultSet.getInt("stok"));
+                    productObject.put("stock", resultSet.getInt("stock"));
 
                     productsArray.put(productObject);
                 }
@@ -532,19 +532,19 @@ public class Response {
             int productId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM tb_products WHERE id_product = ?")) {
+                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM products WHERE products_id = ?")) {
 
                 statement.setInt(1, productId);
 
                 ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     JSONObject productObject = new JSONObject();
-                    productObject.put("id_product", resultSet.getInt("id_product"));
-                    productObject.put("id_user", resultSet.getInt("id_user"));
+                    productObject.put("products_id", resultSet.getInt("products_id"));
+                    productObject.put("users_id", resultSet.getInt("users_id"));
                     productObject.put("title", resultSet.getString("title"));
                     productObject.put("description", resultSet.getString("description"));
                     productObject.put("price", resultSet.getDouble("price"));
-                    productObject.put("stok", resultSet.getInt("stok"));
+                    productObject.put("stock", resultSet.getInt("stock"));
 
                     sendResponse(exchange, 200, productObject.toString());
                 } else {
@@ -562,7 +562,7 @@ public class Response {
             int userId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM tb_products WHERE id_user = ?")) {
+                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM products WHERE users_id = ?")) {
 
                 statement.setInt(1, userId);
 
@@ -571,12 +571,12 @@ public class Response {
 
                 while (resultSet.next()) {
                     JSONObject productObject = new JSONObject();
-                    productObject.put("id_product", resultSet.getInt("id_product"));
-                    productObject.put("id_user", resultSet.getInt("id_user"));
+                    productObject.put("products_id", resultSet.getInt("products_id"));
+                    productObject.put("users_id", resultSet.getInt("users_id"));
                     productObject.put("title", resultSet.getString("title"));
                     productObject.put("description", resultSet.getString("description"));
                     productObject.put("price", resultSet.getDouble("price"));
-                    productObject.put("stok", resultSet.getInt("stok"));
+                    productObject.put("stock", resultSet.getInt("stock"));
 
                     productsArray.put(productObject);
                 }
@@ -595,16 +595,16 @@ public class Response {
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject productObject = new JSONObject(requestBody);
-                int userId = productObject.getInt("id_user");
+                int userId = productObject.getInt("users_id");
                 String title = productObject.getString("title");
                 String description = productObject.getString("description");
                 double price = productObject.getDouble("price");
-                int stok = productObject.getInt("stok");
-                int productId = productObject.getInt("id_product");
+                int stok = productObject.getInt("stock");
+                int productId = productObject.getInt("products_id");
 
                 try (Connection connection = Database.connect();
                      PreparedStatement statement = connection.prepareStatement(
-                             "INSERT INTO tb_products (id_user, title, description, price, stok, id_product) " +
+                             "INSERT INTO products (users_id, title, description, price, stok, products_id) " +
                                      "VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
 
                     statement.setInt(1, userId);
@@ -620,7 +620,7 @@ public class Response {
                         if (generatedKeys.next()) {
                             productId = generatedKeys.getInt(1);
                             JSONObject responseObj = new JSONObject();
-                            responseObj.put("id_product", productId);
+                            responseObj.put("products_id", productId);
                             responseObj.put("message", "Product created successfully");
                             sendResponse(exchange, 201, responseObj.toString());
                             return;
