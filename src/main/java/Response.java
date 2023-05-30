@@ -1077,192 +1077,161 @@ public class Response {
    }
 }
 
-//    static class OrderDetailsHandler implements HttpHandler {
-//        @Override
-//        public void handle(HttpExchange exchange) throws IOException {
-//            String method = exchange.getRequestMethod();
-//            String path = exchange.getRequestURI().getPath();
-//
-//            if (method.equals("GET")) {
-//                if (path.equals("/orderDetails")) {
-//                    handleGetOrderDetails(exchange);
-//                    return;
-//                } else if (path.matches("/orderDetails/\\d+")) {
-//                    handleGetOrderDetailsById(exchange);
-//                    return;
-//                }
-//            } else if (method.equals("POST") && path.equals("/orderDetails")) {
-//                handleCreateOrderDetails(exchange);
-//                return;
-//            } else if (method.equals("PUT") && path.matches("/orderDetails/\\d+")) {
-//                handleUpdateOrderDetails(exchange);
-//                return;
-//            } else if (method.equals("DELETE") && path.matches("/orderDetails/\\d+")) {
-//                handleDeleteOrderDetails(exchange);
-//                return;
-//            }
-//
-//            sendErrorResponse(exchange, 404, "Not Found");
-//        }
-//
-//        private void handleGetOrderDetails(HttpExchange exchange) throws IOException {
-//            try (Connection connection = Database.connect();
-//                 Statement statement = connection.createStatement();
-//                 ResultSet resultSet = statement.executeQuery("SELECT * FROM order_details")) {
-//
-//                JSONArray orderDetailsArray = new JSONArray();
-//
-//                while (resultSet.next()) {
-//                    JSONObject orderDetailsObject = new JSONObject();
-//                    orderDetailsObject.put("id_order", resultSet.getInt("id_order"));
-//                    orderDetailsObject.put("id_product", resultSet.getInt("id_product"));
-//                    orderDetailsObject.put("quantity", resultSet.getInt("quantity"));
-//                    orderDetailsObject.put("price", resultSet.getInt("price"));
-//
-//                    orderDetailsArray.put(orderDetailsObject);
-//                }
-//
-//                sendResponse(exchange, 200, orderDetailsArray.toString());
-//            } catch (SQLException | JSONException e) {
-//                e.printStackTrace();
-//                sendErrorResponse(exchange, 500, "Internal Server Error");
-//            }
-//        }
-//
-//        private void handleGetOrderDetailsById(HttpExchange exchange) throws IOException {
-//            String path = exchange.getRequestURI().getPath();
-//            int IdorderDetails = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
-//
-//            try (Connection connection = Database.connect();
-//                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM order_details WHERE id_user = ?")) {
-//
-//                statement.setInt(1, IdorderDetails);
-//
-//                ResultSet resultSet = statement.executeQuery();
-//                if (resultSet.next()) {
-//                    JSONObject orderDetailsObject = new JSONObject();
-//                    orderDetailsObject.put("id_order", resultSet.getInt("id_order"));
-//                    orderDetailsObject.put("id_product", resultSet.getInt("id_product"));
-//                    orderDetailsObject.put("quantity", resultSet.getInt("quantity"));
-//                    orderDetailsObject.put("price", resultSet.getInt("price"));
-//
-//                    sendResponse(exchange, 200, orderDetailsObject.toString());
-//                } else {
-//                    sendErrorResponse(exchange, 404, "Address not found");
-//                }
-//            } catch (SQLException | JSONException e) {
-//                e.printStackTrace();
-//                sendErrorResponse(exchange, 500, "Internal Server Error");
-//            }
-//        }
-//
-//        private void handleCreateOrderDetails(HttpExchange exchange) throws IOException {
-//            String requestBody = Request.getRequestData(exchange);
-//            try {
-//                JSONObject orderDetailsObject = new JSONObject(requestBody);
-//                int IdOrder = orderDetailsObject.getInt("id_order");
-//                int IdProduct = orderDetailsObject.getInt("id_product");
-//                int quantity = orderDetailsObject.getInt("quantity");
-//                int price = orderDetailsObject.getInt("price");
-//
-//                try (Connection connection = Database.connect();
-//                     PreparedStatement statement = connection.prepareStatement(
-//                             "INSERT INTO addresses (id_user, type, quantity, price, city, province, postcode) " +
-//                                     "VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
-//
-//                    statement.setInt(1, IdOrder);
-//                    statement.setInt(2, IdProduct);
-//                    statement.setInt(3, quantity);
-//                    statement.setInt(4, price);
-//
-//                    int affectedRows = statement.executeUpdate();
-//                    if (affectedRows > 0) {
-//                        ResultSet generatedKeys = statement.getGeneratedKeys();
-//                        if (generatedKeys.next()) {
-//                            int Idorderdetails = generatedKeys.getInt(1);
-//                            JSONObject responseObj = new JSONObject();
-//                            responseObj.put("id_order", Idorderdetails);
-//                            responseObj.put("message", "Address created successfully");
-//                            sendResponse(exchange, 201, responseObj.toString());
-//                            return;
-//                        }
-//                    }
-//                } catch (SQLException e) {
-//                    e.printStackTrace();
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//
-//            sendErrorResponse(exchange, 400, "Bad Request");
-//        }
-//
-//        private void handleUpdateOrderDetails(HttpExchange exchange) throws IOException {
-//            String path = exchange.getRequestURI().getPath();
-//            int IdAddress = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
-//
-//            String requestBody = Request.getRequestData(exchange);
-//            try {
-//                JSONObject addressObject = new JSONObject(requestBody);
-//                int IdUser = addressObject.getInt("id_user");
-//                String type = addressObject.getString("type");
-//                String line1 = addressObject.getString("line1");
-//                String line2 = addressObject.getString("line2");
-//                String city = addressObject.getString("city");
-//                String province = addressObject.getString("province");
-//                String postcode = addressObject.getString("postcode");
-//
-//                try (Connection connection = Database.connect();
-//                     PreparedStatement statement = connection.prepareStatement(
-//                             "UPDATE addresses SET id_user = ?, type = ?, line1 = ?, line2 = ?, city = ?, province = ?, postcode = ? WHERE id_user = ?")) {
-//
-//                    statement.setInt(1, IdUser);
-//                    statement.setString(2, type);
-//                    statement.setString(3, line1);
-//                    statement.setString(4, line2);
-//                    statement.setString(5, city);
-//                    statement.setString(6, province);
-//                    statement.setString(7, postcode);
-//                    statement.setInt(8, IdAddress);
-//
-//                    int affectedRows = statement.executeUpdate();
-//                    if (affectedRows > 0) {
-//                        JSONObject responseObj = new JSONObject();
-//                        responseObj.put("message", "Address updated successfully");
-//                        sendResponse(exchange, 200, responseObj.toString());
-//                        return;
-//                    }
-//                } catch (SQLException e) {
-//                    e.printStackTrace();
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//
-//            sendErrorResponse(exchange, 400, "Bad Request");
-//        }
-//
-//        private void handleDeleteOrderDetails(HttpExchange exchange) throws IOException {
-//            String path = exchange.getRequestURI().getPath();
-//            int IdAddress = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
-//
-//            try (Connection connection = Database.connect();
-//                 PreparedStatement statement = connection.prepareStatement("DELETE FROM addresses WHERE id_user = ?")) {
-//
-//                statement.setInt(1, IdAddress);
-//
-//                int affectedRows = statement.executeUpdate();
-//                if (affectedRows > 0) {
-//                    JSONObject responseObj = new JSONObject();
-//                    responseObj.put("message", "Address deleted successfully");
-//                    sendResponse(exchange, 200, responseObj.toString());
-//                    return;
-//                }
-//            } catch (SQLException | JSONException e) {
-//                e.printStackTrace();
-//            }
-//
-//            sendErrorResponse(exchange, 404, "Address not found");
-//        }
-//    }
+    static class OrderDetailsHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            String method = exchange.getRequestMethod();
+            String path = exchange.getRequestURI().getPath();
+
+            if (method.equals("GET")) {
+                if (path.matches("/orderDetails/\\d+")) {
+                    handleGetOrderDetails(exchange);
+                    return;
+                }
+            } else if (method.equals("POST") && path.equals("/orderDetails")) {
+                handleCreateOrderDetail(exchange);
+                return;
+            } else if (method.equals("PUT") && path.matches("/orderDetails/\\d+")) {
+                handleUpdateOrderDetail(exchange);
+                return;
+            } else if (method.equals("DELETE") && path.matches("/orderDetails/\\d+")) {
+                handleDeleteOrderDetail(exchange);
+                return;
+            }
+
+            sendErrorResponse(exchange, 404, "Not Found");
+        }
+
+        private void handleGetOrderDetails(HttpExchange exchange) throws IOException {
+            String path = exchange.getRequestURI().getPath();
+            int orderId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+
+            try (Connection connection = Database.connect();
+                 PreparedStatement statement = connection.prepareStatement(
+                         "SELECT * FROM order_details WHERE id_order = ?")) {
+
+                statement.setInt(1, orderId);
+                ResultSet resultSet = statement.executeQuery();
+
+                JSONArray orderDetailsArray = new JSONArray();
+
+                while (resultSet.next()) {
+                    JSONObject orderDetailObject = new JSONObject();
+                    orderDetailObject.put("id_order", resultSet.getInt("id_order"));
+                    orderDetailObject.put("id_product", resultSet.getInt("id_product"));
+                    orderDetailObject.put("quantitiy", resultSet.getInt("quantitiy"));
+                    orderDetailObject.put("price", resultSet.getInt("price"));
+
+                    orderDetailsArray.put(orderDetailObject);
+                }
+
+                sendResponse(exchange, 200, orderDetailsArray.toString());
+            } catch (SQLException | JSONException e) {
+                e.printStackTrace();
+                sendErrorResponse(exchange, 500, "Internal Server Error");
+            }
+        }
+
+        private void handleCreateOrderDetail(HttpExchange exchange) throws IOException {
+            String requestBody = Request.getRequestData(exchange);
+            try {
+                JSONObject orderDetailObject = new JSONObject(requestBody);
+                int orderId = orderDetailObject.getInt("id_order");
+                int productId = orderDetailObject.getInt("id_product");
+                int quantity = orderDetailObject.getInt("quantitiy");
+                int price = orderDetailObject.getInt("price");
+
+                try (Connection connection = Database.connect();
+                     PreparedStatement statement = connection.prepareStatement(
+                             "INSERT INTO order_details (id_order, id_product, quantitiy, price) " +
+                                     "VALUES (?, ?, ?, ?)")) {
+
+                    statement.setInt(1, orderId);
+                    statement.setInt(2, productId);
+                    statement.setInt(3, quantity);
+                    statement.setInt(4, price);
+
+                    int affectedRows = statement.executeUpdate();
+                    if (affectedRows > 0) {
+                        JSONObject responseObj = new JSONObject();
+                        responseObj.put("id_order", orderId);
+                        responseObj.put("message", "Order detail created successfully");
+                        sendResponse(exchange, 201, responseObj.toString());
+                        return;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            sendErrorResponse(exchange, 400, "Bad Request");
+        }
+
+        private void handleUpdateOrderDetail(HttpExchange exchange) throws IOException {
+            String path = exchange.getRequestURI().getPath();
+            int orderDetailId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+
+            String requestBody = Request.getRequestData(exchange);
+            try {
+                JSONObject orderDetailObject = new JSONObject(requestBody);
+                int orderId = orderDetailObject.getInt("id_order");
+                int productId = orderDetailObject.getInt("id_product");
+                int quantity = orderDetailObject.getInt("quantitiy");
+                int price = orderDetailObject.getInt("price");
+
+                try (Connection connection = Database.connect();
+                     PreparedStatement statement = connection.prepareStatement(
+                             "UPDATE order_details SET id_order = ?, id_product = ?, quantitiy = ?, price = ? " +
+                                     "WHERE id_order = ?")) {
+
+                    statement.setInt(1, orderId);
+                    statement.setInt(2, productId);
+                    statement.setInt(3, quantity);
+                    statement.setDouble(4, price);
+                    statement.setInt(5, orderDetailId);
+
+                    int affectedRows = statement.executeUpdate();
+                    if (affectedRows > 0) {
+                        JSONObject responseObj = new JSONObject();
+                        responseObj.put("message", "Order details updated successfully");
+                        sendResponse(exchange, 200, responseObj.toString());
+                        return;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            sendErrorResponse(exchange, 400, "Bad Request");
+        }
+
+        private void handleDeleteOrderDetail(HttpExchange exchange) throws IOException {
+            String path = exchange.getRequestURI().getPath();
+            int orderDetailId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+
+            try (Connection connection = Database.connect();
+                 PreparedStatement statement = connection.prepareStatement(
+                         "DELETE FROM order_details WHERE id_order = ?")) {
+
+                statement.setInt(1, orderDetailId);
+
+                int affectedRows = statement.executeUpdate();
+                if (affectedRows > 0) {
+                    JSONObject responseObj = new JSONObject();
+                    responseObj.put("message", "Order detail deleted successfully");
+                    sendResponse(exchange, 200, responseObj.toString());
+                    return;
+                }
+            } catch (SQLException | JSONException e) {
+                e.printStackTrace();
+            }
+
+            sendErrorResponse(exchange, 404, "Order detail not found");
+        }
+    }
 }
+
