@@ -19,6 +19,8 @@ public class Main {
         server.createContext("/products", new Response.ProductsHandler());
         server.createContext("/orders", new Response.OrdersHandler());
         server.createContext("/orderDetails", new Response.OrderDetailsHandler());
+        server.createContext("/reviews", new Response.ReviewHandler());
+
 
         // Add more handlers for other endpoints (/products, /orders, /reviews) if needed
         server.setExecutor(null);
