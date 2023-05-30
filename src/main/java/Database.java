@@ -7,7 +7,7 @@ public class Database {
         Connection con = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            con = DriverManager.getConnection("jdbc:sqlite:db_ecommerce.db");
+            con = DriverManager.getConnection("jdbc:sqlite:db_ecommerces.db");
             System.out.println("Connected!");
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println(e + "Not Connected!");
