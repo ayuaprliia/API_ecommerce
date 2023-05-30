@@ -8,7 +8,7 @@ public class Server {
     private static final String API_KEY_ENV_VARIABLE = "API_KEY";
     //    private static final String DATABASE_URL = "jdbc:sqlite:path-to-your-sqlite-database";
 
-    static class DataHandler implements HttpHandler {
+    public static class DataHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             String requestMethod = exchange.getRequestMethod();
