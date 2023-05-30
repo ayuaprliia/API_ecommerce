@@ -99,7 +99,7 @@ public class Response {
                     response.put("users", usersArray);
 
                     sendResponse(exchange, 200, response.toString());
-                } catch (SQLException e) {
+                } catch (SQLException | JSONException e) {
                     e.printStackTrace();
                     sendErrorResponse(exchange, 500, "Internal Server Error");
                 }
@@ -126,7 +126,7 @@ public class Response {
                     response.put("users", usersArray);
 
                     sendResponse(exchange, 200, response.toString());
-                } catch (SQLException e) {
+                } catch (SQLException | JSONException e) {
                     e.printStackTrace();
                     sendErrorResponse(exchange, 500, "Internal Server Error");
                 }
@@ -390,7 +390,7 @@ public class Response {
                     sendResponse(exchange, 200, responseObj.toString());
                     return;
                 }
-            } catch (SQLException e) {
+            } catch (SQLException | JSONException e) {
                 e.printStackTrace();
             }
 
@@ -423,7 +423,7 @@ public class Response {
                         return;
                     }
                 }
-            } catch (SQLException e) {
+            } catch (SQLException | JSONException e) {
                 e.printStackTrace();
             }
 
@@ -643,15 +643,15 @@ public class Response {
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject productObject = new JSONObject(requestBody);
-                int userId = productObject.getInt("id_user");
+                int userId = productObject.getInt("users_id");
                 String title = productObject.getString("title");
                 String description = productObject.getString("description");
                 double price = productObject.getDouble("price");
-                int stok = productObject.getInt("stok");
+                int stok = productObject.getInt("stock");
 
                 try (Connection connection = Database.connect();
                      PreparedStatement statement = connection.prepareStatement(
-                             "UPDATE tb_products SET id_user = ?, title = ?, description = ?, price = ?, stok = ? WHERE id_product = ?")) {
+                             "UPDATE products SET users_id = ?, title = ?, description = ?, price = ?, stock = ? WHERE products_id = ?")) {
 
                     statement.setInt(1, userId);
                     statement.setString(2, title);
@@ -682,7 +682,7 @@ public class Response {
             int productId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
-                 PreparedStatement statement = connection.prepareStatement("DELETE FROM tb_products WHERE id_product = ?")) {
+                 PreparedStatement statement = connection.prepareStatement("DELETE FROM products WHERE products_id = ?")) {
 
                 statement.setInt(1, productId);
 
@@ -732,14 +732,14 @@ public class Response {
         private void handleGetOrders(HttpExchange exchange) throws IOException {
             try (Connection connection = Database.connect();
                  Statement statement = connection.createStatement();
-                 ResultSet resultSet = statement.executeQuery("SELECT * FROM tb_orders")) {
+                 ResultSet resultSet = statement.executeQuery("SELECT * FROM orders")) {
 
                 JSONArray ordersArray = new JSONArray();
 
                 while (resultSet.next()) {
                     JSONObject orderObject = new JSONObject();
-                    orderObject.put("id_order", resultSet.getInt("id_order"));
-                    orderObject.put("id_user", resultSet.getInt("id_user"));
+                    orderObject.put("orders_id", resultSet.getInt("orders_id"));
+                    orderObject.put("users_id", resultSet.getInt("users_id"));
                     orderObject.put("note", resultSet.getString("note"));
                     orderObject.put("total", resultSet.getDouble("total"));
                     orderObject.put("discount", resultSet.getDouble("discount"));
@@ -760,15 +760,15 @@ public class Response {
             int orderId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM tb_orders WHERE id_order = ?")) {
+                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM orders WHERE orders_id = ?")) {
 
                 statement.setInt(1, orderId);
 
                 ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     JSONObject orderObject = new JSONObject();
-                    orderObject.put("id_order", resultSet.getInt("id_order"));
-                    orderObject.put("id_user", resultSet.getInt("id_user"));
+                    orderObject.put("orders_id", resultSet.getInt("orders_id"));
+                    orderObject.put("users_id", resultSet.getInt("users_id"));
                     orderObject.put("note", resultSet.getString("note"));
                     orderObject.put("total", resultSet.getDouble("total"));
                     orderObject.put("discount", resultSet.getDouble("discount"));
@@ -788,8 +788,8 @@ public class Response {
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject orderObject = new JSONObject(requestBody);
-                int orderId = orderObject.getInt("id_order");
-                int userId = orderObject.getInt("id_user");
+                int orderId = orderObject.getInt("orders_id");
+                int userId = orderObject.getInt("users_id");
                 String note = orderObject.getString("note");
                 double total = orderObject.getDouble("total");
                 double discount = orderObject.getDouble("discount");
@@ -797,7 +797,7 @@ public class Response {
 
                 try (Connection connection = Database.connect();
                      PreparedStatement statement = connection.prepareStatement(
-                             "INSERT INTO tb_orders (id_order ,id_user, note, total, discount, is_paid) " +
+                             "INSERT INTO orders (orders_id ,users_id, note, total, discount, is_paid) " +
                                      "VALUES (? , ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
 
                     statement.setInt(1, orderId);
@@ -813,7 +813,7 @@ public class Response {
                         if (generatedKeys.next()) {
 //                            orderId = generatedKeys.getInt(1);
                             JSONObject responseObj = new JSONObject();
-                            responseObj.put("id_order", orderId);
+                            responseObj.put("orders_id", orderId);
                             responseObj.put("message", "Order created successfully");
                             sendResponse(exchange, 201, responseObj.toString());
                             return;
@@ -836,7 +836,7 @@ public class Response {
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject orderObject = new JSONObject(requestBody);
-                int userId = orderObject.getInt("id_user");
+                int userId = orderObject.getInt("users_id");
                 String note = orderObject.getString("note");
                 double total = orderObject.getDouble("total");
                 double discount = orderObject.getDouble("discount");
@@ -844,7 +844,7 @@ public class Response {
 
                 try (Connection connection = Database.connect();
                      PreparedStatement statement = connection.prepareStatement(
-                             "UPDATE tb_orders SET id_user = ?, note = ?, total = ?, discount = ?, is_paid = ? WHERE id_order = ?")) {
+                             "UPDATE orders SET users_id = ?, note = ?, total = ?, discount = ?, is_paid = ? WHERE orders_id = ?")) {
 
                     statement.setInt(1, userId);
                     statement.setString(2, note);
@@ -875,7 +875,7 @@ public class Response {
             int orderId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
-                 PreparedStatement statement = connection.prepareStatement("DELETE FROM tb_orders WHERE id_order = ?")) {
+                 PreparedStatement statement = connection.prepareStatement("DELETE FROM orders WHERE orders_id = ?")) {
 
                 statement.setInt(1, orderId);
 
@@ -925,13 +925,13 @@ public class Response {
         private void handleGetAddresses(HttpExchange exchange) throws IOException {
             try (Connection connection = Database.connect();
                  Statement statement = connection.createStatement();
-                 ResultSet resultSet = statement.executeQuery("SELECT * FROM tb_address")) {
+                 ResultSet resultSet = statement.executeQuery("SELECT * FROM address")) {
 
                 JSONArray addressesArray = new JSONArray();
 
                 while (resultSet.next()) {
                     JSONObject addressObject = new JSONObject();
-                    addressObject.put("id_user", resultSet.getInt("id_user"));
+                    addressObject.put("users_id", resultSet.getInt("users_id"));
                     addressObject.put("type", resultSet.getString("type"));
                     addressObject.put("line1", resultSet.getString("line1"));
                     addressObject.put("line2", resultSet.getString("line2"));
@@ -954,14 +954,14 @@ public class Response {
             int addressId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM tb_address WHERE id_user = ?")) {
+                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM addresses WHERE users_id = ?")) {
 
                 statement.setInt(1, addressId);
 
                 ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     JSONObject addressObject = new JSONObject();
-                    addressObject.put("id_user", resultSet.getInt("id_user"));
+                    addressObject.put("users_id", resultSet.getInt("users_id"));
                     addressObject.put("type", resultSet.getString("type"));
                     addressObject.put("line1", resultSet.getString("line1"));
                     addressObject.put("line2", resultSet.getString("line2"));
@@ -983,7 +983,7 @@ public class Response {
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject addressObject = new JSONObject(requestBody);
-                int userId = addressObject.getInt("id_user");
+                int userId = addressObject.getInt("users_id");
                 String type = addressObject.getString("type");
                 String line1 = addressObject.getString("line1");
                 String line2 = addressObject.getString("line2");
@@ -993,7 +993,7 @@ public class Response {
 
                 try (Connection connection = Database.connect();
                      PreparedStatement statement = connection.prepareStatement(
-                             "INSERT INTO tb_address (id_user, type, line1, line2, city, province, postcode) " +
+                             "INSERT INTO addresses (users_id, type, line1, line2, city, province, postcode) " +
                                      "VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
 
                     statement.setInt(1, userId);
@@ -1010,7 +1010,7 @@ public class Response {
                         if (generatedKeys.next()) {
                             int addressId = generatedKeys.getInt(1);
                             JSONObject responseObj = new JSONObject();
-                            responseObj.put("id_user", addressId);
+                            responseObj.put("users_id", addressId);
                             responseObj.put("message", "Address created successfully");
                             sendResponse(exchange, 201, responseObj.toString());
                             return;
@@ -1033,7 +1033,7 @@ public class Response {
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject addressObject = new JSONObject(requestBody);
-                int userId = addressObject.getInt("id_user");
+                int userId = addressObject.getInt("users_id");
                 String type = addressObject.getString("type");
                 String line1 = addressObject.getString("line1");
                 String line2 = addressObject.getString("line2");
@@ -1043,7 +1043,7 @@ public class Response {
 
                 try (Connection connection = Database.connect();
                      PreparedStatement statement = connection.prepareStatement(
-                             "UPDATE tb_address SET id_user = ?, type = ?, line1 = ?, line2 = ?, city = ?, province = ?, postcode = ? WHERE id_user = ?")) {
+                             "UPDATE addresses SET users_id = ?, type = ?, line1 = ?, line2 = ?, city = ?, province = ?, postcode = ? WHERE users_id = ?")) {
 
                     statement.setInt(1, userId);
                     statement.setString(2, type);
@@ -1076,7 +1076,7 @@ public class Response {
             int addressId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
-                 PreparedStatement statement = connection.prepareStatement("DELETE FROM tb_address WHERE id_user = ?")) {
+                 PreparedStatement statement = connection.prepareStatement("DELETE FROM addresses WHERE users_id = ?")) {
 
                 statement.setInt(1, addressId);
 

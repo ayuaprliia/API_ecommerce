@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 public class Main {
     public static void main(String[] args) throws IOException {
         // Mengatur port untuk API
-        int port = 7002;
+        int port = 8000;
         if (args.length > 0) {
             port = Integer.parseInt(args[0]);
         }
@@ -20,7 +20,7 @@ public class Main {
 
         // Add more handlers for other endpoints (/products, /orders, /reviews) if needed
         server.setExecutor(null);
-        server.createContext("/api/data", new Server.DataHandler());
+        server.createContext("/users/data", new Server.DataHandler());
         server.start();
         System.out.println("Listening on port: "+port);
     }
