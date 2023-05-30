@@ -64,6 +64,10 @@ public class Response {
         }
 
         private void handleGetUsers(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
 
             // Mendapatkan nilai query params "type" dari URL
             String query = exchange.getRequestURI().getQuery();
@@ -130,6 +134,10 @@ public class Response {
         }
 
         private void handleGetUserById(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
 
             String path = exchange.getRequestURI().getPath();
             int IdUser = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
@@ -197,6 +205,10 @@ public class Response {
 //        }
 
         private void handleCreateUser(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
 
             String requestBody = Request.getRequestData(exchange);
             try {
@@ -276,6 +288,10 @@ public class Response {
 
 
         private void handleUpdateUser(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
 
             String path = exchange.getRequestURI().getPath();
             int IdUser = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
@@ -318,6 +334,10 @@ public class Response {
         }
 
         private void handleUpdateAddress(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
 
             String path = exchange.getRequestURI().getPath();
             int IdUser = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
@@ -363,6 +383,10 @@ public class Response {
         }
 
         private void handleDeleteAddress(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
 
             String path = exchange.getRequestURI().getPath();
             int IdUser = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
@@ -387,6 +411,10 @@ public class Response {
         }
 
         private void handleDeleteUser(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
 
             String path = exchange.getRequestURI().getPath();
             int IdUser = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
@@ -484,6 +512,10 @@ public class Response {
         }
 
         private void handleGetProducts(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             try (Connection connection = Database.connect();
                  Statement statement = connection.createStatement();
                  ResultSet resultSet = statement.executeQuery("SELECT * FROM products")) {
@@ -510,6 +542,10 @@ public class Response {
         }
 
         private void handleGetProductById(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int IdProduct = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -540,6 +576,10 @@ public class Response {
 
 
         private void handleGetProductByUser(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int IdUser = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -571,9 +611,11 @@ public class Response {
         }
 
 
-
-
         private void handleCreateProduct(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject productObject = new JSONObject(requestBody);
@@ -619,6 +661,10 @@ public class Response {
         }
 
         private void handleUpdateProduct(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int idProduct = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -660,6 +706,10 @@ public class Response {
         }
 
         private void handleDeleteProduct(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int IdProduct = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -712,6 +762,10 @@ public class Response {
         }
 
         private void handleGetOrders(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             try (Connection connection = Database.connect();
                  Statement statement = connection.createStatement();
                  ResultSet resultSet = statement.executeQuery("SELECT * FROM orders")) {
@@ -738,6 +792,10 @@ public class Response {
         }
 
         private void handleGetOrderById(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int orderId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -767,6 +825,10 @@ public class Response {
         }
 
         private void handleCreateOrder(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject orderObject = new JSONObject(requestBody);
@@ -812,6 +874,10 @@ public class Response {
         }
 
         private void handleUpdateOrder(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int IdOrder = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -853,6 +919,10 @@ public class Response {
         }
 
         private void handleDeleteOrder(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int IdOrder = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -905,6 +975,10 @@ public class Response {
         }
 
         private void handleGetAddresses(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             try (Connection connection = Database.connect();
                  Statement statement = connection.createStatement();
                  ResultSet resultSet = statement.executeQuery("SELECT * FROM addresses")) {
@@ -932,6 +1006,10 @@ public class Response {
         }
 
         private void handleGetAddressById(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int IdAddress = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -962,6 +1040,10 @@ public class Response {
         }
 
         private void handleCreateAddress(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject addressObject = new JSONObject(requestBody);
@@ -1009,6 +1091,10 @@ public class Response {
         }
 
         private void handleUpdateAddress(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int IdAddress = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -1054,6 +1140,10 @@ public class Response {
         }
 
         private void handleDeleteAddress(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int IdAddress = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -1103,6 +1193,10 @@ public class Response {
         }
 
         private void handleGetOrderDetails(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int orderId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -1133,6 +1227,10 @@ public class Response {
         }
 
         private void handleCreateOrderDetail(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject orderDetailObject = new JSONObject(requestBody);
@@ -1170,6 +1268,10 @@ public class Response {
         }
 
         private void handleUpdateOrderDetail(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int orderDetailId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -1210,6 +1312,10 @@ public class Response {
         }
 
         private void handleDeleteOrderDetail(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int orderDetailId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -1259,6 +1365,10 @@ public class Response {
         }
 
         private void handleGetReviewById(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int reviewId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -1285,6 +1395,10 @@ public class Response {
         }
 
         private void handleCreateReview(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String requestBody = Request.getRequestData(exchange);
             try {
                 JSONObject reviewObject = new JSONObject(requestBody);
@@ -1320,6 +1434,10 @@ public class Response {
         }
 
         private void handleUpdateReview(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int reviewId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
@@ -1355,6 +1473,10 @@ public class Response {
         }
 
         private void handleDeleteReview(HttpExchange exchange) throws IOException {
+            if (!Server.validateApiKey(exchange)) {
+                sendErrorResponse(exchange, 401, "Unauthorized");
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             int reviewId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
