@@ -170,7 +170,7 @@ public class Response {
                         }
                     }
                     JSONObject response = new JSONObject();
-                    response.put("user", userObject);
+                    response.put("users", userObject);
                     response.put("addresses", addressesArray);
 
                     sendResponse(exchange, 200, response.toString());
