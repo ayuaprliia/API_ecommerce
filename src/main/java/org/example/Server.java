@@ -1,15 +1,10 @@
-import java.io.BufferedReader;
+package org.example;
 import java.io.IOException;
-
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
-public class HttpServer {
+public class Server {
     private static final String API_KEY_ENV_VARIABLE = "API_KEY";
     //    private static final String DATABASE_URL = "jdbc:sqlite:path-to-your-sqlite-database";
 
