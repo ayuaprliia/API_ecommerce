@@ -156,9 +156,9 @@ public class Response {
                     userObject.put("type", resultSet.getString("type"));
 
                     JSONArray addressesArray = new JSONArray();
-                    while (resultSet.getString("address_type") != null) {
+                    while (resultSet.getString("addresses_type") != null) {
                         JSONObject addressObject = new JSONObject();
-                        addressObject.put("type", resultSet.getString("address_type"));
+                        addressObject.put("type", resultSet.getString("addresses_type"));
                         addressObject.put("line1", resultSet.getString("line1"));
                         addressObject.put("line2", resultSet.getString("line2"));
                         addressObject.put("city", resultSet.getString("city"));
@@ -169,20 +169,33 @@ public class Response {
                             break;
                         }
                     }
+                    JSONObject response = new JSONObject();
+                    response.put("user", userObject);
+                    response.put("addresses", addressesArray);
 
-                    if (addressesArray.length() > 0) {
-                        userObject.put("address", addressesArray);
-                    }
-
-                    sendResponse(exchange, 200, userObject.toString());
-                    return;
+                    sendResponse(exchange, 200, response.toString());
+                } else {
+                    sendErrorResponse(exchange, 404, "User Not Found");
                 }
             } catch (SQLException | JSONException e) {
                 e.printStackTrace();
                 sendErrorResponse(exchange, 500, "Internal Server Error");
             }
-            sendErrorResponse(exchange, 404, "User not found");
         }
+
+//                    if (addressesArray.length() > 0) {
+//                        userObject.put("addresses", addressesArray);
+//                    }
+//
+//                    sendResponse(exchange, 200, userObject.toString());
+//                    return;
+//                }
+//            } catch (SQLException | JSONException e) {
+//                e.printStackTrace();
+//                sendErrorResponse(exchange, 500, "Internal Server Error");
+//            }
+//            sendErrorResponse(exchange, 404, "User not found");
+//        }
 
         private void handleCreateUser(HttpExchange exchange) throws IOException {
 
@@ -801,7 +814,7 @@ public class Response {
 
         private void handleUpdateOrder(HttpExchange exchange) throws IOException {
             String path = exchange.getRequestURI().getPath();
-            int orderId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+            int IdOrder = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             String requestBody = Request.getRequestData(exchange);
             try {
@@ -821,7 +834,7 @@ public class Response {
                     statement.setDouble(3, total);
                     statement.setDouble(4, discount);
                     statement.setBoolean(5, isPaid);
-                    statement.setInt(6, orderId);
+                    statement.setInt(6, IdOrder);
 
                     int affectedRows = statement.executeUpdate();
                     if (affectedRows > 0) {
@@ -842,12 +855,12 @@ public class Response {
 
         private void handleDeleteOrder(HttpExchange exchange) throws IOException {
             String path = exchange.getRequestURI().getPath();
-            int orderId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+            int IdOrder = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
                  PreparedStatement statement = connection.prepareStatement("DELETE FROM orders WHERE id_order = ?")) {
 
-                statement.setInt(1, orderId);
+                statement.setInt(1, IdOrder);
 
                 int affectedRows = statement.executeUpdate();
                 if (affectedRows > 0) {
@@ -921,12 +934,12 @@ public class Response {
 
         private void handleGetAddressById(HttpExchange exchange) throws IOException {
             String path = exchange.getRequestURI().getPath();
-            int addressId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+            int IdAddress = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
                  PreparedStatement statement = connection.prepareStatement("SELECT * FROM addresses WHERE id_user = ?")) {
 
-                statement.setInt(1, addressId);
+                statement.setInt(1, IdAddress);
 
                 ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
@@ -998,7 +1011,7 @@ public class Response {
 
         private void handleUpdateAddress(HttpExchange exchange) throws IOException {
             String path = exchange.getRequestURI().getPath();
-            int addressId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+            int IdAddress = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             String requestBody = Request.getRequestData(exchange);
             try {
@@ -1022,7 +1035,7 @@ public class Response {
                     statement.setString(5, city);
                     statement.setString(6, province);
                     statement.setString(7, postcode);
-                    statement.setInt(8, addressId);
+                    statement.setInt(8, IdAddress);
 
                     int affectedRows = statement.executeUpdate();
                     if (affectedRows > 0) {
@@ -1043,12 +1056,12 @@ public class Response {
 
         private void handleDeleteAddress(HttpExchange exchange) throws IOException {
             String path = exchange.getRequestURI().getPath();
-            int addressId = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+            int IdAddress = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
 
             try (Connection connection = Database.connect();
                  PreparedStatement statement = connection.prepareStatement("DELETE FROM addresses WHERE id_user = ?")) {
 
-                statement.setInt(1, addressId);
+                statement.setInt(1, IdAddress);
 
                 int affectedRows = statement.executeUpdate();
                 if (affectedRows > 0) {
