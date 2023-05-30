@@ -1,17 +1,19 @@
 import java.io.IOException;
-import java.io.OutputStream;
 import io.github.cdimascio.dotenv.Dotenv;
+
+import java.io.OutputStream;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class Server {
-
     private static final String API_KEY;
 
     static {
         Dotenv dotenv = Dotenv.configure().directory(".env").load();
         API_KEY = dotenv.get("API_KEY");
     }
+
     static class DataHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -24,14 +26,6 @@ public class Server {
                     sendResponse(exchange, 401, "Unauthorized");
                     return;
                 }
-
-                // Proses permintaan dan manipulasi database
-                // ...
-                // Contoh: Menambahkan data ke database
-                // String jsonData = requestBodyToString(exchange);
-                // Data data = parseJsonData(jsonData);
-                // insertDataToDatabase(data);
-                // sendResponse(exchange, 200, "Data added to database.");
 
                 sendResponse(exchange, 200, "Request authorized. Data added to database.");
             } else {
@@ -48,7 +42,8 @@ public class Server {
         outputStream.close();
     }
     public static boolean validateApiKey(HttpExchange exchange) {
-        String apiKey = exchange.getRequestHeaders().getFirst("kunci_API");
+        String apiKey = exchange.getRequestHeaders().getFirst("API_KEY");
         return apiKey != null && apiKey.equals(API_KEY);
     }
+
 }
