@@ -5,15 +5,14 @@ import java.net.InetSocketAddress;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        // Mengatur port untuk API
+        // port setting for API
         int port = 8030;
         if (args.length > 0) {
             port = Integer.parseInt(args[0]);
         }
 
-        // Menginisialisasi server dengan port yang telah ditentukan
+        //server initialization
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-
 
         server.createContext("/users", new Response.UsersHandler());
         server.createContext("/products", new Response.ProductsHandler());
@@ -22,7 +21,7 @@ public class Main {
         server.createContext("/reviews", new Response.ReviewHandler());
 
 
-        // Add more handlers for other endpoints (/products, /orders, /reviews) if needed
+        // Add handler
         server.setExecutor(null);
         server.createContext("/api/data", new Server.DataHandler());
         server.start();
